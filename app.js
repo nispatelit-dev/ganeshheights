@@ -1703,3 +1703,193 @@ document.addEventListener("DOMContentLoaded", () => {
   // Initial dashboard update
   updateDashboardSummary();
 });
+
+// Aarati Schedule Data and Functions
+let aaratiSchedule = [
+  { id: 1, date: "2025-09-22", day: "સોમવાર", flatNumbers: [] },
+  { id: 2, date: "2025-09-23", day: "મંગળવાર", flatNumbers: [] },
+  { id: 3, date: "2025-09-24", day: "બુધવાર", flatNumbers: [] },
+  { id: 4, date: "2025-09-25", day: "ગુરુવાર", flatNumbers: [] },
+  { id: 5, date: "2025-09-26", day: "શુક્રવાર", flatNumbers: [] },
+  { id: 6, date: "2025-09-27", day: "શનિવાર", flatNumbers: [] },
+  { id: 7, date: "2025-09-28", day: "રવિવાર", flatNumbers: [] },
+  { id: 8, date: "2025-09-29", day: "સોમવાર", flatNumbers: [] },
+  { id: 9, date: "2025-09-30", day: "મંગળવાર", flatNumbers: [] },
+  { id: 10, date: "2025-10-01", day: "બુધવાર", flatNumbers: [] },
+];
+
+// Format date to display as "22 સપ્ટેમ્બર, 2025"
+function formatDisplayDate(dateString) {
+  const date = new Date(dateString);
+  const options = { day: "numeric", month: "long", year: "numeric" };
+  return date.toLocaleDateString("gu-IN", options);
+}
+
+// Render the Aarati Schedule table
+function renderAaratiSchedule() {
+  const tbody = document.getElementById("aaratiScheduleBody");
+  if (!tbody) return;
+
+  tbody.innerHTML = "";
+
+  aaratiSchedule.forEach((entry, index) => {
+    const tr = document.createElement("tr");
+    tr.dataset.id = entry.id;
+
+    tr.innerHTML = `
+      <td>${index + 1}</td>
+      <td>${formatDisplayDate(entry.date)}</td>
+      <td>${entry.day}</td>
+      <td>
+        <div class="flat-tags" id="flats-${entry.id}">
+          ${entry.flatNumbers
+            .map(
+              (flat) =>
+                `<span class="flat-tag">${flat}
+              <button class="flat-remove" data-id="${entry.id}" data-flat="${flat}">&times;</button>
+            </span>`
+            )
+            .join("")}
+        </div>
+        <div class="flat-input-group">
+          <input type="text" class="flat-input" id="flat-input-${entry.id}" 
+                 placeholder="Add flat number (e.g., GH-101)" />
+          <button class="btn btn--small btn--primary add-flat" data-id="${
+            entry.id
+          }">Add</button>
+        </div>
+      </td>
+    `;
+
+    tbody.appendChild(tr);
+  });
+
+  // Add event listeners for flat input
+  document.querySelectorAll(".add-flat").forEach((button) => {
+    button.addEventListener("click", (e) => {
+      const id = parseInt(e.target.dataset.id);
+      const input = document.getElementById(`flat-input-${id}`);
+      const flatNumber = input.value.trim().toUpperCase();
+
+      if (flatNumber && flatNumber.match(/^GH-\d{3}$/)) {
+        const entry = aaratiSchedule.find((e) => e.id === id);
+        if (entry && !entry.flatNumbers.includes(flatNumber)) {
+          entry.flatNumbers.push(flatNumber);
+          renderAaratiSchedule();
+          saveAaratiSchedule();
+        }
+        input.value = "";
+      } else {
+        showToast("Please enter a valid flat number (e.g., GH-101)", "error");
+      }
+    });
+  });
+
+  // Add event listeners for flat removal
+  document.querySelectorAll(".flat-remove").forEach((button) => {
+    button.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const id = parseInt(button.dataset.id);
+      const flatNumber = button.dataset.flat;
+      const entry = aaratiSchedule.find((e) => e.id === id);
+
+      if (entry) {
+        entry.flatNumbers = entry.flatNumbers.filter((f) => f !== flatNumber);
+        renderAaratiSchedule();
+        saveAaratiSchedule();
+      }
+    });
+  });
+
+  // Allow pressing Enter in flat input
+  document.querySelectorAll(".flat-input").forEach((input) => {
+    input.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") {
+        const id = parseInt(input.id.replace("flat-input-", ""));
+        const addButton = document.querySelector(`.add-flat[data-id="${id}"]`);
+        if (addButton) addButton.click();
+      }
+    });
+  });
+}
+
+// Save schedule to localStorage
+function saveAaratiSchedule() {
+  try {
+    localStorage.setItem("aaratiSchedule", JSON.stringify(aaratiSchedule));
+  } catch (e) {
+    console.error("Error saving schedule:", e);
+  }
+}
+
+// Load schedule from localStorage
+function loadAaratiSchedule() {
+  try {
+    const saved = localStorage.getItem("aaratiSchedule");
+    if (saved) {
+      aaratiSchedule = JSON.parse(saved);
+    }
+  } catch (e) {
+    console.error("Error loading schedule:", e);
+  }
+}
+
+// Add a new Aarati entry
+function addAaratiEntry() {
+  const newId =
+    aaratiSchedule.length > 0
+      ? Math.max(...aaratiSchedule.map((e) => e.id)) + 1
+      : 1;
+  const newDate = new Date(aaratiSchedule[aaratiSchedule.length - 1].date);
+  newDate.setDate(newDate.getDate() + 1);
+
+  const days = [
+    "રવિવાર",
+    "સોમવાર",
+    "મંગળવાર",
+    "બુધવાર",
+    "ગુરુવાર",
+    "શુક્રવાર",
+    "શનિવાર",
+  ];
+  const dayName = days[newDate.getDay()];
+
+  aaratiSchedule.push({
+    id: newId,
+    date: newDate.toISOString().split("T")[0],
+    day: dayName,
+    flatNumbers: [],
+  });
+
+  saveAaratiSchedule();
+  renderAaratiSchedule();
+}
+
+// Delete an Aarati entry
+function deleteAaratiEntry(id) {
+  showConfirm(
+    "Delete Entry",
+    "Are you sure you want to delete this entry?",
+    () => {
+      aaratiSchedule = aaratiSchedule.filter((entry) => entry.id !== id);
+      saveAaratiSchedule();
+      renderAaratiSchedule();
+      showToast("Entry deleted successfully");
+    }
+  );
+}
+
+// Initialize Aarati Schedule
+document.addEventListener("DOMContentLoaded", () => {
+  // Load saved schedule
+  loadAaratiSchedule();
+
+  // Add event listener for Add Entry button
+  const addBtn = document.getElementById("addAaratiEntryBtn");
+  if (addBtn) {
+    addBtn.addEventListener("click", addAaratiEntry);
+  }
+
+  // Initial render
+  renderAaratiSchedule();
+});

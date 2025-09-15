@@ -526,3 +526,239 @@ body {
     padding: 20px 0;
     background-color: transparent;
 }
+
+/* Aarati Schedule Styles */
+.flat-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 8px;
+}
+
+.flat-tag {
+    display: inline-flex;
+    align-items: center;
+    background-color: #e3f2fd;
+    color: #1976d2;
+    padding: 4px 10px;
+    border-radius: 16px;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.4;
+    border: 1px solid #bbdefb;
+}
+
+.flat-tag .flat-remove {
+    background: none;
+    border: none;
+    color: #1976d2;
+    font-size: 16px;
+    line-height: 1;
+    margin-left: 4px;
+    padding: 0 2px;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.flat-tag .flat-remove:hover {
+    opacity: 1;
+    background: rgba(25, 118, 210, 0.1);
+    border-radius: 50%;
+}
+
+.flat-input-group {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.flat-input {
+    flex: 1;
+    padding: 6px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: border-color 0.2s;
+}
+
+.flat-input:focus {
+    outline: none;
+    border-color: #1976d2;
+    box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.2);
+}
+
+/* Responsive Table Styles */
+@media (max-width: 768px) {
+    #aaratiScheduleTable th:nth-child(3),
+    #aaratiScheduleTable td:nth-child(3) {
+        display: none;
+    }
+    
+    #aaratiScheduleTable th,
+    #aaratiScheduleTable td {
+        padding: 8px 4px;
+        font-size: 13px;
+    }
+    
+    .flat-input-group {
+        flex-direction: column;
+    }
+    
+    .flat-input-group .btn {
+        width: 100%;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .flat-input-group,
+    .actions {
+        display: none !important;
+    }
+    
+    .flat-tag .flat-remove {
+        display: none;
+    }
+    
+    #addAaratiEntryBtn {
+        display: none;
+    }
+}
+
+/* Ensure proper spacing in the table */
+#aaratiScheduleTable td {
+    vertical-align: top;
+    padding: 12px 8px;
+}
+
+#aaratiScheduleTable tr:not(:last-child) {
+    border-bottom: 1px solid #f0f0f0;
+}
+
+/* Hover effect for table rows */
+#aaratiScheduleTable tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+/* Make sure the table is full width */
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+}
+
+/* Style for the Add Entry button */
+#addAaratiEntryBtn {
+    margin-bottom: 16px;
+}
+
+/* Ensure the table header has a subtle background */
+#aaratiScheduleTable thead {
+    background-color: #f8f9fa;
+}
+
+#aaratiScheduleTable th {
+    font-weight: 600;
+    text-align: left;
+    padding: 12px 8px;
+    border-bottom: 2px solid #e9ecef;
+}
+
+/* Make the table more compact */
+#aaratiScheduleTable {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+/* Style for the delete button */
+.btn--danger {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+}
+
+.btn--danger:hover {
+    background-color: #c82333;
+}
+
+/* Ensure the flat tags wrap properly */
+.flat-tag {
+    white-space: nowrap;
+    word-break: keep-all;
+}
+
+/* Add some spacing between sections */
+.section {
+    padding: 24px 0;
+}
+
+/* Make sure the table is responsive */
+@media (max-width: 992px) {
+    .container {
+        padding: 0 16px;
+    }
+}
+
+/* Ensure the table header is sticky when scrolling */
+.table-responsive {
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+#aaratiScheduleTable thead th {
+    position: sticky;
+    top: 0;
+    background-color: #f8f9fa;
+    z-index: 10;
+}
+
+/* Add a subtle shadow to the sticky header */
+#aaratiScheduleTable thead {
+    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* Ensure the table takes full width of its container */
+#aaratiScheduleTable {
+    min-width: 100%;
+}
+
+/* Style for the flat input container */
+.flat-input-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* Style for the flat input group */
+.flat-input-group {
+    display: flex;
+    gap: 8px;
+}
+
+/* Make sure buttons in the table are properly aligned */
+.actions {
+    white-space: nowrap;
+}
+
+/* Add some spacing between the table and the card edges */
+.card__body {
+    padding: 16px;
+}
+
+/* Ensure the table is properly spaced within the card */
+.card__body > .table-responsive {
+    margin: -16px;
+    width: calc(100% + 32px);
+}
+
+/* Make sure the table has proper spacing on mobile */
+@media (max-width: 576px) {
+    .card__body {
+        padding: 12px;
+    }
+    
+    .card__body > .table-responsive {
+        margin: -12px;
+        width: calc(100% + 24px);
+    }
+}

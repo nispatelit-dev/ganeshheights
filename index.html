@@ -80,6 +80,7 @@
                     <button class="nav-tab active" data-section="dashboard">Dashboard</button>
                     <button class="nav-tab" data-section="contributions">Fund Contributions</button>
                     <button class="nav-tab" data-section="donations">Donations</button>
+                    <button class="nav-tab" data-section="aaratischedule">Aarati Schedule</button>
                     <button class="nav-tab" data-section="export">Export</button>
                 </div>
             </div>
@@ -283,6 +284,38 @@
                                     </tbody>
                                 </table>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Aarati Schedule Section -->
+        <section id="aaratischedule" class="section">
+            <div class="container">
+                <div class="section-header">
+                    <h2>આરતી શેડ્યૂલ</h2>
+                    <div class="section-actions">
+                        <button id="addAaratiEntryBtn" class="btn btn--primary btn--pill">Add Entry</button>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card__body">
+                        <div class="table-responsive">
+                            <table id="aaratiScheduleTable" class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>ક્રમ</th>
+                                        <th>તારીખ</th>
+                                        <th>દિવસ</th>
+                                        <th>ફ્લેટ નંબર</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="aaratiScheduleBody">
+                                    <!-- Will be populated by JavaScript -->
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
