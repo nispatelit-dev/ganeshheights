@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <!-- CSP: allow Firestore SDK and API endpoints -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com 'unsafe-inline'; connect-src 'self' https://firestore.googleapis.com https://*.googleapis.com https://*.firebaseio.com; img-src 'self' data:; style-src 'self' 'unsafe-inline'; font-src 'self' data:; object-src 'none'; base-uri 'self'; frame-ancestors 'self';">
+    <title>Ganesh Heights • Festival Fund Manager</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="loginScreen" class="login-screen">
+        <div class="login-container">
+            <div class="login-header">
+                <h1>Ganesh Heights</h1>
+                <p class="brand-subtitle">Festival Fund Manager</p>
+            </div>
+            <form id="loginForm" class="login-form">
+                <div class="form-group">
+                    <label for="username" class="form-label">Username</label>
+                    <input type="text" id="username" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" id="password" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn--primary btn--full-width">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="mainApp" class="main-app hidden">
+        <!-- Header -->
+        <header class="app-header festival-header">
+            <div class="container">
+                <div class="header-content">
+                    <div class="brand">
+                        <h1 class="app-title">Ganesh Heights</h1>
+                        <div class="brand-subtitle">Festival Fund Manager</div>
+                    </div>
+                    <!-- Theme selector removed: Apple theme is now the only design -->
+                    <button id="logoutBtn" class="btn btn--outline btn--sm">Logout</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Festival Banner -->
+        <!-- <section class="festival-banner">
+            <div class="container">
+                <div class="festival-banner__content">
+                    <div class="festival-banner__title">Wishing you a joyous festival!</div>
+                    <div class="festival-banner__meta">Manage contributions and donations seamlessly for our society celebrations.</div>
+                </div>
+            </div>
+        </section> -->
+
+        <!-- Navigation -->
+        <nav class="app-nav">
+            <div class="container">
+                <div class="nav-tabs segmented">
+                    <button class="nav-tab active" data-section="dashboard">Dashboard</button>
+                    <button class="nav-tab" data-section="contributions">Fund Contributions</button>
+                    <button class="nav-tab" data-section="donations">Donations</button>
+                    <button class="nav-tab" data-section="export">Export</button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="section active">
+            <div class="container">
+                <div class="section-header">
+                    <h2>Overview</h2>
+                    <div class="section-actions"></div>
+                </div>
+                <div class="summary-cards">
+                    <div class="card summary-card">
+                        <div class="card__body">
+                            <h3>Total Fund Contributions</h3>
+                            <div class="summary-amount" id="totalContributions">₹0</div>
+                            <div class="summary-count" id="contributionsCount">0 contributions</div>
+                        </div>
+                    </div>
+                    <div class="card summary-card">
+                        <div class="card__body">
+                            <h3>Total Donations</h3>
+                            <div class="summary-amount" id="totalDonations">₹0</div>
+                            <div class="summary-count" id="donationsCount">0 donations</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contributions Section -->
+        <section id="contributions" class="section">
+            <div class="container">
+                <div class="section-header">
+                    <h2>Fund Contributions</h2>
+                    <div class="section-actions">
+                        <button id="addContributionBtn" class="btn btn--primary btn--pill">Add Contribution</button>
+                    </div>
+                </div>
+                <!-- Contribution Form -->
+                <div id="contributionForm" class="form-container hidden">
+                    <div class="card">
+                        <div class="card__body">
+                            <h3 id="contributionFormTitle">Add New Contribution</h3>
+                            <form id="contributionFormElement">
+                                <input type="hidden" id="editContributionId">
+                                <div class="form-group">
+                                    <label for="flatNumber" class="form-label">Flat Number</label>
+                                    <select id="flatNumber" class="form-control" required>
+                                        <!-- Options populated dynamically: GH-101, GH-102, ... GH-1304 -->
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="residentName" class="form-label">Resident Name</label>
+                                    <input type="text" id="residentName" class="form-control" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="contributionAmount" class="form-label">Amount (₹)</label>
+                                    <input type="number" id="contributionAmount" class="form-control" min="1" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="contributionDate" class="form-label">Date of Contribution</label>
+                                    <input type="date" id="contributionDate" class="form-control" required>
+                                </div>
+                                <div class="form-actions">
+                                    <button type="submit" class="btn btn--primary">Save Contribution</button>
+                                    <button type="button" id="cancelContributionBtn" class="btn btn--outline">Cancel</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contributions Table -->
+                <div class="table-container">
+                    <div class="card">
+                        <div class="card__body">
+                            <div class="table-responsive">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Flat</th>
+                                            <th>Resident Name</th>
+                                            <th>Amount</th>
+                                            <th>Date</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="contributionsTableBody">
+                                        <!-- Dynamic content -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Donations Section -->
+        <section id="donations" class="section">
+            <div class="container">
+                <div class="section-header">
+                    <h2>Donations</h2>
+                    <div class="section-actions">
+                        <button id="addDonationBtn" class="btn btn--primary btn--pill">Add Donation</button>
+                    </div>
+                </div>
+                <!-- Donation Form -->
+                <div id="donationForm" class="form-container hidden">
+                    <div class="card">
+                        <div class="card__body">
+                            <h3 id="donationFormTitle">Add New Donation</h3>
+                            <form id="donationFormElement">
+                                <input type="hidden" id="editDonationId">
+                                <div class="form-group">
+                                    <label for="donationFlatNumber" class="form-label">Flat Number</label>
+                                    <select id="donationFlatNumber" class="form-control" required>
+                                        <!-- Options populated dynamically: GH-101 ... GH-1304 -->
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="donorName" class="form-label">Donor Name</label>
+                                    <input type="text" id="donorName" class="form-control" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="navaratriDay" class="form-label">Navaratri Day</label>
+                                    <select id="navaratriDay" class="form-control" required>
+                                        <!-- Populated from app.js (days 1-10 with Gujarati labels) -->
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="donationPurposeSelect" class="form-label">Purpose</label>
+                                    <select id="donationPurposeSelect" class="form-control" required>
+                                        <option value="" disabled selected>Select Purpose</option>
+                                        <option value="Prasadi">Prasadi</option>
+                                        <option value="Decorations">Decorations</option>
+                                        <option value="Sound/Lighting">Sound/Lighting</option>
+                                        <option value="Stage">Stage</option>
+                                        <option value="Pooja Samagri">Pooja Samagri</option>
+                                        <option value="Event">Event</option>
+                                        <option value="Security">Security</option>
+                                        <option value="Cleaning">Cleaning</option>
+                                        <option value="Donation (General)">Donation (General)</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="donationPurposeOther" class="form-label">If Other, specify</label>
+                                    <input type="text" id="donationPurposeOther" class="form-control" placeholder="Enter custom purpose" disabled>
+                                </div>
+                                <div class="form-group">
+                                    <label for="donationAmount" class="form-label">Amount (₹)</label>
+                                    <input type="number" id="donationAmount" class="form-control" min="1" step="1" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="donationDate" class="form-label">Date</label>
+                                    <input type="date" id="donationDate" class="form-control" required readonly>
+                                </div>
+                                <div class="form-actions">
+                                    <button type="submit" class="btn btn--primary">Save Donation</button>
+                                    <button type="button" id="cancelDonationBtn" class="btn btn--secondary">Cancel</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Donations Table -->
+                <div class="table-container">
+                    <div class="card">
+                        <div class="card__body">
+                            <div class="table-responsive">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Flat</th>
+                                            <th>Donor Name</th>
+                                            <th>Amount</th>
+                                            <th>Purpose</th>
+                                            <th>Date</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="donationsTableBody">
+                                        <!-- Dynamic content -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Export Section -->
+        <section id="export" class="section">
+            <div class="container">
+                <h2>Export Data</h2>
+                <div class="card">
+                    <div class="card__body">
+                        <p>Download all fund contributions and donations data in JSON format for backup or reporting purposes.</p>
+                        <div class="export-summary">
+                            <div class="export-item">
+                                <strong>Fund Contributions:</strong> <span id="exportContributionsCount">0</span> entries
+                            </div>
+                            <div class="export-item">
+                                <strong>Donations:</strong> <span id="exportDonationsCount">0</span> entries
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button id="exportDataBtn" class="btn btn--primary btn--lg">Download JSON Export</button>
+                            <button id="clearDataBtn" class="btn btn--danger btn--lg">Clear All Data</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Confirm Modal (Popup) -->
+    <div id="confirmModal" class="modal" aria-hidden="true">
+        <div class="modal-overlay" data-close="true"></div>
+        <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="confirmTitle" aria-describedby="confirmMessage">
+            <h3 id="confirmTitle">Confirm</h3>
+            <p id="confirmMessage">Are you sure?</p>
+            <div class="modal-actions">
+                <button id="confirmCancel" class="btn btn--outline">Cancel</button>
+                <button id="confirmOk" class="btn btn--primary">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase (modular) initialization -->
+    <script type="module">
+      import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+      import {
+        getFirestore,
+        collection,
+        getDocs,
+        setDoc,
+        addDoc,
+        doc,
+        deleteDoc,
+        updateDoc,
+        onSnapshot,
+        query,
+        orderBy
+      } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+
+      // TODO: Replace with your Firebase project config
+      const firebaseConfig = {
+        apiKey: "AIzaSyBhFhV6rw0fufEKWf7e7WvA9U00YXVzFUA",
+        authDomain: "ghfamily-007.firebaseapp.com",
+        projectId: "ghfamily-007",
+        storageBucket: "ghfamily-007.firebasestorage.app",
+        messagingSenderId: "850509530725",
+        appId: "1:850509530725:web:c79f2606dbf0c12334688c"
+      };
+
+      try {
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        // Expose Firestore handle and helpers for non-module app.js
+        window.firebase = {
+          db,
+          fns: { collection, getDocs, setDoc, addDoc, doc, deleteDoc, updateDoc, onSnapshot, query, orderBy }
+        };
+        console.log('[Firebase] initialized');
+      } catch (e) {
+        console.warn('[Firebase] init failed or not configured', e);
+      }
+    </script>
+    <script src="app.js" defer></script>
+</body>
+</html>

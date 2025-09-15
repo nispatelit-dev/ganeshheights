@@ -1,0 +1,137 @@
+/* Simple minimal CSS for a clean layout */
+/* Reset */
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 14px; line-height: 1.5; color: #111; background: #fff; overflow-x: hidden; }
+
+/* Layout */
+.container { width: 100%; max-width: 960px; margin: 0 auto; padding: 16px; }
+.section { display: none; padding: 16px 0; }
+.section.active { display: block; }
+.section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+
+/* Header */
+.app-header { border-bottom: 1px solid #e5e5e5; background: #fff; }
+.header-content { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.app-title { font-size: 18px; margin: 0; }
+
+/* Nav */
+.app-nav { border-bottom: 1px solid #e5e5e5; background: #fafafa; }
+.nav-tabs { display: flex; gap: 6px; padding: 8px 0; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.nav-tab { appearance: none; border: 1px solid #e0e0e0; background: #fff; color: #111; padding: 6px 12px; border-radius: 6px; cursor: pointer; }
+.nav-tab.active { background: #111; color: #fff; border-color: #111; }
+
+/* Forms */
+.form-container { margin-bottom: 16px; }
+.form-group { margin-bottom: 12px; }
+.form-label { display: block; font-weight: 600; margin-bottom: 6px; }
+.form-control { width: 100%; padding: 8px 10px; border: 1px solid #ddd; border-radius: 6px; background: #fff; }
+.form-actions { display: flex; gap: 8px; margin-top: 12px; }
+
+/* Buttons */
+.btn { appearance: none; border: 1px solid #ddd; background: #fff; color: #111; padding: 8px 14px; border-radius: 6px; cursor: pointer; }
+.btn--primary { background: #111; color: #fff; border-color: #111; }
+.btn--outline { background: #fff; color: #111; border: 1px solid #bbb; }
+.btn--sm { padding: 6px 10px; font-size: 12px; }
+.btn--full-width { width: 100%; }
+
+/* Cards (kept very simple) */
+.card { border: 1px solid #eee; border-radius: 8px; background: #fff; }
+.card__header, .card__body, .card__footer { padding: 12px; }
+.card__header { border-bottom: 1px solid #eee; }
+
+/* Tables */
+.table-container { margin-top: 12px; }
+.table-responsive { overflow-x: auto; }
+.data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.data-table th, .data-table td { border-bottom: 1px solid #eee; padding: 10px 8px; text-align: left; }
+.data-table th { background: #fafafa; font-weight: 600; }
+.table-actions { display: flex; gap: 6px; }
+.amount { font-weight: 600; }
+
+/* Utilities */
+.hidden { display: none !important; }
+.text-center { text-align: center; }
+.mt-16 { margin-top: 16px; }
+.mb-16 { margin-bottom: 16px; }
+
+/* Login */
+.login-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+.login-container { width: 100%; max-width: 420px; padding: 16px; }
+.login-header { text-align: center; margin-bottom: 12px; }
+.login-form { border: 1px solid #eee; border-radius: 8px; padding: 16px; background: #fff; }
+
+/* Toasts (simple) */
+.toast-container { position: fixed; right: 16px; bottom: 16px; z-index: 1000; }
+.toast { background: #fff; border: 1px solid #eee; padding: 10px 12px; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+.toast--success { border-left: 4px solid #16a34a; }
+.toast--error { border-left: 4px solid #dc2626; }
+.toast--warning { border-left: 4px solid #d97706; }
+.toast-message { font-size: 13px; }
+.toast-close { border: none; background: transparent; cursor: pointer; font-size: 16px; line-height: 1; }
+
+/* Modal (simple popup) */
+.modal { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; z-index: 1000; }
+.modal.show { display: flex; }
+.modal-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.5); }
+.modal-content { position: relative; background: #fff; border: 1px solid #eee; border-radius: 8px; width: 92%; max-width: 420px; padding: 16px; z-index: 1001; }
+.modal-content h3 { margin: 0 0 8px; font-size: 16px; }
+.modal-content p { margin: 0 0 12px; color: #333; }
+.modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
+@media (max-width: 480px) { .modal-content { width: calc(100% - 24px); } }
+
+/* Responsive tweaks */
+@media (max-width: 768px) {
+  .container { padding: 12px; }
+  .header-content { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .section { padding: 12px 0; }
+  .section-header { flex-direction: column; align-items: stretch; gap: 8px; }
+  .section-actions { display: flex; gap: 8px; }
+  .form-actions { flex-direction: column; }
+  .form-actions .btn { width: 100%; }
+  .table-actions { flex-direction: column; gap: 4px; }
+  .data-table { font-size: 12px; }
+  .data-table th, .data-table td { padding: 8px 6px; }
+  .nav-tab { font-size: 13px; white-space: nowrap; }
+  .brand-subtitle { display: none; }
+  .table-container { margin-top: 8px; }
+  .card__body { padding: 12px; }
+  .summary-cards { display: grid; grid-template-columns: 1fr; gap: 8px; }
+}
+
+@media (max-width: 600px) {
+  .data-table thead { display: none; }
+  .data-table, .data-table tbody, .data-table tr, .data-table td { display: block; width: 100%; }
+  .data-table tr { border: 1px solid #eee; border-radius: 8px; padding: 10px; margin-bottom: 10px; background: #fff; }
+  .data-table td { border: none; border-bottom: 1px solid #f0f0f0; position: relative; padding-left: 44%; min-height: 32px; }
+  .data-table td:last-child { border-bottom: none; }
+  .data-table td::before {
+    content: attr(data-label);
+    position: absolute; left: 8px; top: 8px;
+    width: 38%; font-weight: 600; color: #555;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .table-actions { justify-content: flex-start; }
+  .table-actions .btn { width: 100%; }
+  .data-table tr { padding: 10px 8px; }
+  .data-table td { padding: 8px 6px 8px 42%; }
+  .data-table td::before { left: 8px; top: 8px; width: 38%; font-size: 12px; color: #666; }
+  .table-actions { gap: 6px; }
+  .table-actions .btn { width: 100%; }
+}
+
+@media (max-width: 480px) {
+  html, body { font-size: 13px; }
+  .app-title { font-size: 16px; }
+  .btn { padding: 8px 12px; }
+  .btn--sm { padding: 5px 9px; font-size: 11px; }
+  .nav-tab { padding: 6px 10px; font-size: 12px; }
+  .login-container { padding: 12px; }
+  .form-control { min-height: 40px; }
+  .container { padding: 10px; }
+  .card__body { padding: 10px; }
+  .nav-tabs { flex-wrap: nowrap; }
+}
+
+@supports (padding: max(0px)) {
+  body { padding-left: max(0px, env(safe-area-inset-left)); padding-right: max(0px, env(safe-area-inset-right)); }
+}
