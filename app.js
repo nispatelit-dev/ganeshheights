@@ -1,5 +1,6 @@
 // Application State
 let currentUser = null;
+let isGuestUser = false;
 let currentSection = "dashboard";
 let editingContribution = null;
 let editingDonation = null;
@@ -618,6 +619,7 @@ function login(username, password) {
     password === adminCredentials.password
   ) {
     currentUser = username;
+    isGuestUser = false;
     updateUserStatus();
     switchToMainApp();
     showToast("Login successful! Welcome to Festival Fund Manager.");
@@ -629,14 +631,27 @@ function login(username, password) {
   return false;
 }
 
+function loginAsGuest() {
+  currentUser = "Guest";
+  isGuestUser = true;
+  updateUserStatus();
+  switchToMainApp();
+  showToast("Viewing in guest mode. Some features are disabled.", "info");
+}
+
 function logout() {
+  const wasGuest = isGuestUser;
   currentUser = null;
+  isGuestUser = false;
   updateUserStatus();
   switchToLoginScreen();
   clearForms();
   const loginForm = document.getElementById("loginForm");
   if (loginForm) loginForm.reset();
-  showToast("Logged out successfully.", "info");
+  showToast(
+    wasGuest ? "Exited guest mode." : "Logged out successfully.",
+    "info"
+  );
 }
 
 function updateUserStatus() {
@@ -762,7 +777,11 @@ function renderContributionsTable() {
       <tr>
         <td colspan="6" class="empty-state">
           <h3>No contributions found</h3>
-          <p>Try clearing filters or add a new contribution.</p>
+          <p>${
+            isGuestUser
+              ? "No data to display."
+              : "Try clearing filters or add a new contribution."
+          }</p>
         </td>
       </tr>`;
     return;
@@ -777,16 +796,18 @@ function renderContributionsTable() {
         <td class="amount">${formatAmount(contribution.amount)}</td>
         <td>${formatDate(contribution.date)}</td>
         <td>${contribution.receivedBy || ""}</td>
+        ${
+          !isGuestUser
+            ? `
         <td data-label="Actions">
           <div class="table-actions">
-            <button class="btn btn--outline btn--sm" onclick="editContribution(${
-              contribution.id
-            })">Edit</button>
-            <button class="btn btn--outline btn--sm" onclick="deleteContribution(${
-              contribution.id
-            })">Delete</button>
+            <button class="btn btn--outline btn--sm" onclick="editContribution(${contribution.id})">Edit</button>
+            <button class="btn btn--outline btn--sm" onclick="deleteContribution(${contribution.id})">Delete</button>
           </div>
         </td>
+        `
+            : ""
+        }
       </tr>
     `
     )
@@ -980,7 +1001,11 @@ function renderDonationsTable() {
       <tr>
         <td colspan="6" class="empty-state">
           <h3>No donations yet</h3>
-          <p>Try adjusting filters or click "Add Donation" to get started.</p>
+          <p>${
+            isGuestUser
+              ? "No data to display."
+              : "Try adjusting filters or click 'Add Donation' to get started."
+          }</p>
         </td>
       </tr>
     `;
@@ -1005,14 +1030,16 @@ function renderDonationsTable() {
           : ""
       }</td>
       <td data-label="Actions">
+        ${
+          !isGuestUser
+            ? `
         <div class="table-actions">
-          <button class="btn btn--outline btn--sm" onclick="editDonation(${
-            donation.id
-          })">Edit</button>
-          <button class="btn btn--outline btn--sm" onclick="deleteDonation(${
-            donation.id
-          })">Delete</button>
+          <button class="btn btn--outline btn--sm" onclick="editDonation(${donation.id})">Edit</button>
+          <button class="btn btn--outline btn--sm" onclick="deleteDonation(${donation.id})">Delete</button>
         </div>
+        `
+            : ""
+        }
       </td>
     </tr>
   `
@@ -1526,6 +1553,12 @@ async function initializeApp() {
     });
   }
 
+  // Add event listener for skip login button
+  const skipLoginBtn = document.getElementById("skipLoginBtn");
+  if (skipLoginBtn) {
+    skipLoginBtn.addEventListener("click", loginAsGuest);
+  }
+
   console.log("Application initialized successfully");
 }
 
@@ -1571,4 +1604,23 @@ async function clearAllData() {
     console.error("Failed to clear data", e);
     showToast("Failed to clear data. Please try again.", "error");
   }
+}
+
+// Helper function to escape HTML (for security)
+function escapeHtml(unsafe) {
+  if (!unsafe) return "";
+  return unsafe
+    .toString()
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+// Helper function to format date
+function formatDate(dateString) {
+  if (!dateString) return "";
+  const options = { year: "numeric", month: "short", day: "numeric" };
+  return new Date(dateString).toLocaleDateString("en-IN", options);
 }
