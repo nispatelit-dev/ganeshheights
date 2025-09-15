@@ -655,10 +655,36 @@ function logout() {
 }
 
 function updateUserStatus() {
-  const userDisplay = document.getElementById("currentUserDisplay");
-  if (userDisplay) {
-    userDisplay.textContent = currentUser || "Guest";
-    userDisplay.className = currentUser ? "user-logged-in" : "user-guest";
+  const userStatusElement = document.getElementById("currentUserDisplay");
+  const logoutBtn = document.getElementById("logoutBtn");
+  const addContributionBtn = document.getElementById("addContributionBtn");
+  const addDonationBtn = document.getElementById("addDonationBtn");
+
+  if (currentUser) {
+    if (userStatusElement) {
+      userStatusElement.textContent = currentUser;
+    }
+    if (logoutBtn) {
+      logoutBtn.style.display = "inline-block";
+    }
+
+    // Show/hide action buttons based on user type
+    if (isGuestUser) {
+      document.body.classList.add("guest-mode");
+      if (addContributionBtn) addContributionBtn.style.display = "none";
+      if (addDonationBtn) addDonationBtn.style.display = "none";
+    } else {
+      document.body.classList.remove("guest-mode");
+      if (addContributionBtn) addContributionBtn.style.display = "inline-flex";
+      if (addDonationBtn) addDonationBtn.style.display = "inline-flex";
+    }
+  } else {
+    if (userStatusElement) {
+      userStatusElement.textContent = "Guest";
+    }
+    if (logoutBtn) {
+      logoutBtn.style.display = "none";
+    }
   }
 }
 
@@ -764,6 +790,39 @@ function updateDashboard() {
     totalDonationsEl.textContent = formatAmount(totalDonations);
   if (donationsCountEl)
     donationsCountEl.textContent = `${donations.length} donations`;
+}
+
+function updateDashboardSummary() {
+  const contributions = getFilteredContributions();
+  const totalContributions = contributions.reduce(
+    (sum, item) => sum + item.amount,
+    0
+  );
+  const totalDonations = donations.reduce((sum, item) => sum + item.amount, 0);
+
+  const totalContributionsEl = document.getElementById("totalContributions");
+  const contributionsCountEl = document.getElementById("contributionsCount");
+  const totalDonationsEl = document.getElementById("totalDonations");
+  const donationsCountEl = document.getElementById("donationsCount");
+
+  if (totalContributionsEl) {
+    totalContributionsEl.textContent = `₹${totalContributions.toLocaleString(
+      "en-IN"
+    )}`;
+  }
+  if (contributionsCountEl) {
+    contributionsCountEl.textContent = `${contributions.length} contribution${
+      contributions.length !== 1 ? "s" : ""
+    }`;
+  }
+  if (totalDonationsEl) {
+    totalDonationsEl.textContent = `₹${totalDonations.toLocaleString("en-IN")}`;
+  }
+  if (donationsCountEl) {
+    donationsCountEl.textContent = `${donations.length} donation${
+      donations.length !== 1 ? "s" : ""
+    }`;
+  }
 }
 
 // Fund Contributions Functions
@@ -1624,3 +1683,23 @@ function formatDate(dateString) {
   const options = { year: "numeric", month: "short", day: "numeric" };
   return new Date(dateString).toLocaleDateString("en-IN", options);
 }
+
+// Add event listener for refresh button
+document.addEventListener("DOMContentLoaded", () => {
+  const refreshBtn = document.getElementById("refreshDashboardBtn");
+  if (refreshBtn) {
+    refreshBtn.addEventListener("click", updateDashboardSummary);
+  }
+
+  // Update dashboard when switching to it
+  document.querySelectorAll(".nav-tab").forEach((tab) => {
+    tab.addEventListener("click", () => {
+      if (tab.dataset.section === "dashboard") {
+        updateDashboardSummary();
+      }
+    });
+  });
+
+  // Initial dashboard update
+  updateDashboardSummary();
+});

@@ -14,11 +14,12 @@
         <div class="login-container">
             <div class="login-header">
                 <div class="logo-container">
-                    <img src="logo.png" alt="Ganesh Heights Logo" class="logo">
+                    <img src="ghPhotoGreen.png" alt="Ganesh Heights Logo" class="logo">
                 </div>
                 <h1>Ganesh Heights</h1>
                 <p class="brand-subtitle">Festival Fund Manager</p>
             </div>
+            
             <form id="loginForm" class="login-form">
                 <div class="form-group">
                     <label for="username" class="form-label">Username</label>
@@ -28,10 +29,13 @@
                     <label for="password" class="form-label">Password</label>
                     <input type="password" id="password" class="form-control" required>
                 </div>
-                <div class="form-actions">
-                    <button type="submit" class="btn btn--primary">Login</button>
-                    <button type="button" id="skipLoginBtn" class="btn btn--outline">Skip Login (View Only)</button>
-                </div>
+                <button type="submit" class="btn btn--primary btn--full-width">Login</button>
+                
+                <div class="login-divider">or</div>
+                
+                <button type="button" id="skipLoginBtn" class="btn btn--outline btn--full-width">
+                    Continue as Guest (View Only)
+                </button>
             </form>
         </div>
     </div>
@@ -86,17 +90,25 @@
             <div class="container">
                 <div class="section-header">
                     <h2>Overview</h2>
-                    <div class="section-actions"></div>
+                    <div class="section-actions">
+                        <button id="refreshDashboardBtn" class="btn btn--outline btn--sm">
+                            <span class="btn__icon">⟳</span> Refresh
+                        </button>
+                    </div>
                 </div>
+                
                 <div class="summary-cards">
-                    <div class="card summary-card">
+                    <!-- Total Fund Contributions Card -->
+                    <div class="summary-card">
                         <div class="card__body">
                             <h3>Total Fund Contributions</h3>
                             <div class="summary-amount" id="totalContributions">₹0</div>
                             <div class="summary-count" id="contributionsCount">0 contributions</div>
                         </div>
                     </div>
-                    <div class="card summary-card">
+                    
+                    <!-- Total Donations Card -->
+                    <div class="summary-card">
                         <div class="card__body">
                             <h3>Total Donations</h3>
                             <div class="summary-amount" id="totalDonations">₹0</div>
