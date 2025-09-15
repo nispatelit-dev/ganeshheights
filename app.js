@@ -614,15 +614,9 @@ function login(username, password) {
     password === adminCredentials.password
   ) {
     currentUser = username;
-
-    // Switch screens
+    updateUserStatus();
     switchToMainApp();
-
-    // Show success message after a brief delay to ensure the screen has switched
-    setTimeout(() => {
-      showToast("Login successful! Welcome to Festival Fund Manager.");
-    }, 100);
-
+    showToast("Login successful! Welcome to Festival Fund Manager.");
     return true;
   }
 
@@ -631,64 +625,22 @@ function login(username, password) {
   return false;
 }
 
-function switchToMainApp() {
-  const loginScreen = document.getElementById("loginScreen");
-  const mainApp = document.getElementById("mainApp");
-
-  console.log("Switching to main app");
-  console.log("Login screen element:", loginScreen);
-  console.log("Main app element:", mainApp);
-
-  if (loginScreen) {
-    loginScreen.style.display = "none";
-    console.log("Login screen hidden");
-  }
-
-  if (mainApp) {
-    mainApp.style.display = "block";
-    mainApp.classList.remove("hidden");
-    console.log("Main app shown");
-  }
-
-  // Initialize dashboard and other components
-  updateDashboard();
-  renderContributionsTable();
-  renderDonationsTable();
-  updateExportCounts();
-
-  // Ensure dashboard is the active section
-  switchSection("dashboard");
-}
-
-function switchToLoginScreen() {
-  const loginScreen = document.getElementById("loginScreen");
-  const mainApp = document.getElementById("mainApp");
-
-  if (mainApp) {
-    mainApp.style.display = "none";
-    mainApp.classList.add("hidden");
-  }
-
-  if (loginScreen) {
-    loginScreen.style.display = "flex";
-    loginScreen.classList.remove("hidden");
-  }
-}
-
 function logout() {
   currentUser = null;
-
-  // Switch back to login screen
+  updateUserStatus();
   switchToLoginScreen();
-
-  // Clear forms
   clearForms();
-
-  // Clear login form
   const loginForm = document.getElementById("loginForm");
   if (loginForm) loginForm.reset();
-
   showToast("Logged out successfully.", "info");
+}
+
+function updateUserStatus() {
+  const userDisplay = document.getElementById("currentUserDisplay");
+  if (userDisplay) {
+    userDisplay.textContent = currentUser || "Guest";
+    userDisplay.className = currentUser ? "user-logged-in" : "user-guest";
+  }
 }
 
 // Navigation Functions
@@ -731,6 +683,44 @@ function switchSection(sectionName) {
     hideDonationForm();
   } else if (sectionName === "export") {
     updateExportCounts();
+  }
+}
+
+function switchToMainApp() {
+  const loginScreen = document.getElementById("loginScreen");
+  const mainApp = document.getElementById("mainApp");
+
+  if (loginScreen) {
+    loginScreen.style.display = "none";
+  }
+
+  if (mainApp) {
+    mainApp.style.display = "block";
+    mainApp.classList.remove("hidden");
+  }
+
+  // Initialize dashboard and other components
+  updateDashboard();
+  renderContributionsTable();
+  renderDonationsTable();
+  updateExportCounts();
+
+  // Ensure dashboard is the active section
+  switchSection("dashboard");
+}
+
+function switchToLoginScreen() {
+  const loginScreen = document.getElementById("loginScreen");
+  const mainApp = document.getElementById("mainApp");
+
+  if (mainApp) {
+    mainApp.style.display = "none";
+    mainApp.classList.add("hidden");
+  }
+
+  if (loginScreen) {
+    loginScreen.style.display = "flex";
+    loginScreen.classList.remove("hidden");
   }
 }
 

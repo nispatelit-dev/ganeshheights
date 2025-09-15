@@ -13,6 +13,9 @@
     <div id="loginScreen" class="login-screen">
         <div class="login-container">
             <div class="login-header">
+                <div class="logo-container">
+                    <img src="logo.png" alt="Ganesh Heights Logo" class="logo">
+                </div>
                 <h1>Ganesh Heights</h1>
                 <p class="brand-subtitle">Festival Fund Manager</p>
             </div>
@@ -37,11 +40,18 @@
             <div class="container">
                 <div class="header-content">
                     <div class="brand">
-                        <h1 class="app-title">Ganesh Heights</h1>
-                        <div class="brand-subtitle">Festival Fund Manager</div>
+                        <div class="logo-container">
+                            <img src="logo.png" alt="Ganesh Heights Logo" class="logo">
+                        </div>
+                        <div class="brand-text">
+                            <h1 class="app-title">Ganesh Heights</h1>
+                            <div class="brand-subtitle">Festival Fund Manager</div>
+                        </div>
                     </div>
-                    <!-- Theme selector removed: Apple theme is now the only design -->
-                    <button id="logoutBtn" class="btn btn--outline btn--sm">Logout</button>
+                    <div class="user-status">
+                        <span id="currentUserDisplay">Guest</span>
+                        <button id="logoutBtn" class="btn btn--outline btn--sm">Logout</button>
+                    </div>
                 </div>
             </div>
         </header>

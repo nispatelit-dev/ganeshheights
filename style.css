@@ -11,8 +11,29 @@ html, body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFo
 
 /* Header */
 .app-header { border-bottom: 1px solid #e5e5e5; background: #fff; }
-.header-content { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
 .app-title { font-size: 18px; margin: 0; }
+
+/* User status in header */
+.user-status {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+#currentUserDisplay {
+    font-size: 0.9rem;
+    color: #555;
+    background: #f5f5f5;
+    padding: 4px 10px;
+    border-radius: 4px;
+    border: 1px solid #eee;
+}
 
 /* Nav */
 .app-nav { border-bottom: 1px solid #e5e5e5; background: #fafafa; }
@@ -57,8 +78,57 @@ html, body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFo
 /* Login */
 .login-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; }
 .login-container { width: 100%; max-width: 420px; padding: 16px; }
-.login-header { text-align: center; margin-bottom: 12px; }
+.login-header { text-align: center; margin-bottom: 2rem; }
+.login-header .logo {
+    height: 100px;
+}
 .login-form { border: 1px solid #eee; border-radius: 8px; padding: 16px; background: #fff; }
+
+/* Logo styles */
+.logo-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1rem;
+}
+
+.logo {
+    max-height: 80px;
+    width: auto;
+    object-fit: contain;
+}
+
+/* Main header specific styles */
+.app-header .brand {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.app-header .logo-container {
+    margin: 0;
+}
+
+.app-header .logo {
+    height: 50px;
+    width: auto;
+    margin: 0;
+}
+
+.brand-text {
+    line-height: 1.2;
+}
+
+.brand-text .app-title {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #333;
+}
+
+.brand-text .brand-subtitle {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #666;
+}
 
 /* Toasts (simple) */
 .toast-container { position: fixed; right: 16px; bottom: 16px; z-index: 1000; }
