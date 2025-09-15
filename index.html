@@ -119,7 +119,6 @@
                         <div class="card__body">
                             <h3 id="contributionFormTitle">Add New Contribution</h3>
                             <form id="contributionFormElement">
-                                <input type="hidden" id="editContributionId">
                                 <div class="form-group">
                                     <label for="flatNumber" class="form-label">Flat Number</label>
                                     <select id="flatNumber" class="form-control" required>
@@ -135,9 +134,14 @@
                                     <input type="number" id="contributionAmount" class="form-control" min="1" required>
                                 </div>
                                 <div class="form-group">
-                                    <label for="contributionDate" class="form-label">Date of Contribution</label>
+                                    <label for="contributionDate">Date of Contribution <span class="required">*</span></label>
                                     <input type="date" id="contributionDate" class="form-control" required>
                                 </div>
+                                <div class="form-group">
+                                    <label for="receivedBy">Payment Received By <span class="required">*</span></label>
+                                    <input type="text" id="receivedBy" class="form-control" required>
+                                </div>
+                                <input type="hidden" id="editContributionId">
                                 <div class="form-actions">
                                     <button type="submit" class="btn btn--primary">Save Contribution</button>
                                     <button type="button" id="cancelContributionBtn" class="btn btn--outline">Cancel</button>
@@ -159,6 +163,7 @@
                                             <th>Resident Name</th>
                                             <th>Amount</th>
                                             <th>Date</th>
+                                            <th>Received By</th>
                                             <th>Actions</th>
                                         </tr>
                                     </thead>

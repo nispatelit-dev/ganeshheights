@@ -174,6 +174,7 @@ async function subscribeToFirestore() {
         amount: Number(c.amount) || 0,
         date: c.date || getCurrentDate(),
         flatNumber: c.flatNumber || "",
+        receivedBy: c.receivedBy || "",
       }));
       populateFilterOptions && populateFilterOptions();
       renderContributionsTable && renderContributionsTable();
@@ -217,6 +218,7 @@ async function initialFetchFromFirestore() {
       amount: Number(c.amount) || 0,
       date: c.date || getCurrentDate(),
       flatNumber: c.flatNumber || "",
+      receivedBy: c.receivedBy || "",
     }));
 
     populateFilterOptions && populateFilterOptions();
@@ -431,6 +433,7 @@ async function loadStateFromDB() {
           amount: Number(item.amount) || 0,
           date: String(item.date || getCurrentDate()),
           flatNumber: String(item.flatNumber || ""),
+          receivedBy: String(item.receivedBy || ""),
         }));
       }
       if (Array.isArray(val.donations)) {
@@ -470,6 +473,7 @@ async function migrateFromLocalStorageIfNeeded() {
           ? parsed.fundContributions.map((item) => ({
               ...item,
               flatNumber: item.flatNumber || "",
+              receivedBy: item.receivedBy || "",
             }))
           : [],
         donations: Array.isArray(parsed.donations)
@@ -751,32 +755,35 @@ function updateDashboard() {
 function renderContributionsTable() {
   const tbody = document.getElementById("contributionsTableBody");
   if (!tbody) return;
-  const rows = getFilteredContributions();
-  if (rows.length === 0) {
+  const filtered = getFilteredContributions();
+
+  if (filtered.length === 0) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="5" class="empty-state">
+        <td colspan="6" class="empty-state">
           <h3>No contributions found</h3>
           <p>Try clearing filters or add a new contribution.</p>
         </td>
       </tr>`;
     return;
   }
-  tbody.innerHTML = rows
+
+  tbody.innerHTML = filtered
     .map(
-      (item) => `
+      (contribution) => `
       <tr>
-        <td data-label="Flat">${item.flatNumber || ""}</td>
-        <td data-label="Resident Name">${item.residentName}</td>
-        <td class="amount" data-label="Amount">${formatAmount(item.amount)}</td>
-        <td data-label="Date">${formatDate(item.date)}</td>
+        <td>${contribution.flatNumber || ""}</td>
+        <td>${contribution.residentName}</td>
+        <td class="amount">${formatAmount(contribution.amount)}</td>
+        <td>${formatDate(contribution.date)}</td>
+        <td>${contribution.receivedBy || ""}</td>
         <td data-label="Actions">
           <div class="table-actions">
             <button class="btn btn--outline btn--sm" onclick="editContribution(${
-              item.id
+              contribution.id
             })">Edit</button>
             <button class="btn btn--outline btn--sm" onclick="deleteContribution(${
-              item.id
+              contribution.id
             })">Delete</button>
           </div>
         </td>
@@ -848,7 +855,7 @@ function validateContribution(residentName, amount, date, flatNumber) {
   return errors;
 }
 
-function addContribution(residentName, amount, date, flatNumber) {
+function addContribution(residentName, amount, date, flatNumber, receivedBy) {
   const errors = validateContribution(residentName, amount, date, flatNumber);
   if (errors.length > 0) {
     showToast(errors.join(". "), "error");
@@ -861,6 +868,7 @@ function addContribution(residentName, amount, date, flatNumber) {
     amount: parseFloat(amount),
     date: date,
     flatNumber: flatNumber,
+    receivedBy: receivedBy.trim(),
   };
 
   fundContributions.push(newContribution);
@@ -888,6 +896,7 @@ function editContribution(id) {
   const dateInput = document.getElementById("contributionDate");
   const titleElement = document.getElementById("contributionFormTitle");
   const flatSel = document.getElementById("flatNumber");
+  const receivedByInput = document.getElementById("receivedBy");
 
   if (editIdInput) editIdInput.value = id;
   if (nameInput) nameInput.value = contribution.residentName;
@@ -895,11 +904,19 @@ function editContribution(id) {
   if (dateInput) dateInput.value = contribution.date;
   if (titleElement) titleElement.textContent = "Edit Contribution";
   if (flatSel) flatSel.value = contribution.flatNumber || "";
+  if (receivedByInput) receivedByInput.value = contribution.receivedBy || "";
 
   showContributionForm();
 }
 
-function updateContribution(id, residentName, amount, date, flatNumber) {
+function updateContribution(
+  id,
+  residentName,
+  amount,
+  date,
+  flatNumber,
+  receivedBy
+) {
   const errors = validateContribution(residentName, amount, date, flatNumber);
   if (errors.length > 0) {
     showToast(errors.join(". "), "error");
@@ -915,6 +932,7 @@ function updateContribution(id, residentName, amount, date, flatNumber) {
     amount: parseFloat(amount),
     date: date,
     flatNumber: flatNumber,
+    receivedBy: receivedBy.trim(),
   };
 
   renderContributionsTable();
@@ -1385,6 +1403,7 @@ async function initializeApp() {
       const amount = document.getElementById("contributionAmount").value;
       const date = document.getElementById("contributionDate").value;
       const flatNumber = document.getElementById("flatNumber").value;
+      const receivedBy = document.getElementById("receivedBy").value;
       const editId = document.getElementById("editContributionId").value;
       if (editId) {
         updateContribution(
@@ -1392,10 +1411,11 @@ async function initializeApp() {
           residentName,
           amount,
           date,
-          flatNumber
+          flatNumber,
+          receivedBy
         );
       } else {
-        addContribution(residentName, amount, date, flatNumber);
+        addContribution(residentName, amount, date, flatNumber, receivedBy);
       }
     });
   }
