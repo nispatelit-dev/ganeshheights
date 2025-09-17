@@ -876,3 +876,94 @@ body {
         width: calc(100% + 24px);
     }
 }
+
+/* Mobile Card View for Tables */
+@media (max-width: 768px) {
+  .table-container {
+    margin: 0 -8px;
+  }
+  
+  .data-table {
+    display: none; /* Hide the regular table on mobile */
+  }
+  
+  .data-table-mobile {
+    display: block;
+    width: 100%;
+  }
+  
+  .data-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 12px;
+    overflow: hidden;
+    border: 1px solid #e0e0e0;
+  }
+  
+  .data-card__header {
+    background-color: #f8f9fa;
+    padding: 12px;
+    border-bottom: 1px solid #e9ecef;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .data-card__title {
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+  }
+  
+  .data-card__content {
+    padding: 12px;
+  }
+  
+  .data-row {
+    display: flex;
+    padding: 8px 0;
+    border-bottom: 1px solid #f1f1f1;
+  }
+  
+  .data-row:last-child {
+    border-bottom: none;
+  }
+  
+  .data-label {
+    font-weight: 600;
+    color: #666;
+    width: 120px;
+    flex-shrink: 0;
+  }
+  
+  .data-value {
+    flex: 1;
+    color: #333;
+    word-break: break-word;
+  }
+  
+  .data-actions {
+    display: flex;
+    gap: 8px;
+    padding: 12px;
+    background: #f8f9fa;
+    border-top: 1px solid #e9ecef;
+  }
+  
+  /* Show mobile table when in mobile view */
+  .data-table-mobile {
+    display: block;
+  }
+}
+
+/* Desktop styles */
+@media (min-width: 769px) {
+  .data-table-mobile {
+    display: none; /* Hide mobile cards on desktop */
+  }
+  
+  .data-table {
+    display: table; /* Show regular table on desktop */
+  }
+}

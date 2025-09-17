@@ -342,12 +342,12 @@ function getFilteredContributions() {
   });
 
   // Helper function to extract numeric part from flat number
-  const getFlatNumber = (flatStr) => {
+  function getFlatNumber(flatStr) {
     if (!flatStr) return 0;
-    // Extract numbers from string (e.g., 'GH-101' -> 101)
+    // Remove all non-digit characters and convert to number
     const num = flatStr.replace(/\D/g, "");
     return parseInt(num, 10) || 0;
-  };
+  }
 
   // Then sort the filtered results
   return [...filtered].sort((a, b) => {
@@ -869,6 +869,10 @@ function updateDashboardSummary() {
 function renderContributionsTable() {
   const tbody = document.getElementById("contributionsTableBody");
   if (!tbody) return;
+
+  // Update the table headers with sort indicators
+  updateTableHeaders();
+
   const filtered = getFilteredContributions();
 
   if (filtered.length === 0) {
@@ -883,9 +887,88 @@ function renderContributionsTable() {
           }</p>
         </td>
       </tr>`;
+
+    // Clear mobile view if it exists
+    const existingMobileContainer =
+      document.querySelector(".data-table-mobile");
+    if (existingMobileContainer) {
+      existingMobileContainer.innerHTML = `
+        <div class="empty-state">
+          <h3>No contributions found</h3>
+          <p>${
+            isGuestUser
+              ? "No data to display."
+              : "Try clearing filters or add a new contribution."
+          }</p>
+        </div>`;
+    }
     return;
   }
 
+  // Generate mobile cards
+  const mobileContainer = document.createElement("div");
+  mobileContainer.className = "data-table-mobile";
+
+  filtered.forEach((contribution, index) => {
+    const card = document.createElement("div");
+    card.className = "data-card";
+
+    // Card header with Flat and Amount
+    const header = document.createElement("div");
+    header.className = "data-card__header";
+    header.innerHTML = `
+      <h3 class="data-card__title">${contribution.flatNumber || "N/A"}</h3>
+      <span class="amount">${formatAmount(contribution.amount)}</span>
+    `;
+
+    // Card content
+    const content = document.createElement("div");
+    content.className = "data-card__content";
+    content.innerHTML = `
+      <div class="data-row">
+        <span class="data-label">Resident Name:</span>
+        <span class="data-value">${contribution.residentName || "N/A"}</span>
+      </div>
+      <div class="data-row">
+        <span class="data-label">Date:</span>
+        <span class="data-value">${formatDate(contribution.date)}</span>
+      </div>
+      <div class="data-row">
+        <span class="data-label">Received By:</span>
+        <span class="data-value">${contribution.receivedBy || "N/A"}</span>
+      </div>
+    `;
+
+    // Actions (for non-guest users)
+    if (!isGuestUser) {
+      const actions = document.createElement("div");
+      actions.className = "data-actions";
+      actions.innerHTML = `
+        <button class="btn btn--outline btn--sm" onclick="editContribution(${contribution.id})">Edit</button>
+        <button class="btn btn--outline btn--sm" onclick="deleteContribution(${contribution.id})">Delete</button>
+      `;
+      card.appendChild(actions);
+    }
+
+    card.prepend(header, content);
+    mobileContainer.appendChild(card);
+  });
+
+  // Insert or update the mobile container
+  const tableContainer =
+    tbody.closest(".table-responsive") ||
+    tbody.closest(".card__body") ||
+    tbody.closest("section");
+  const existingMobileContainer =
+    tableContainer.querySelector(".data-table-mobile");
+
+  if (existingMobileContainer) {
+    existingMobileContainer.replaceWith(mobileContainer);
+  } else {
+    tableContainer.insertBefore(mobileContainer, tableContainer.firstChild);
+  }
+
+  // Regular table (hidden on mobile)
   tbody.innerHTML = filtered
     .map(
       (contribution, index) => `
@@ -1095,54 +1178,134 @@ async function deleteContribution(id) {
 function renderDonationsTable() {
   const tbody = document.getElementById("donationsTableBody");
   if (!tbody) return;
-  const rows = getFilteredDonations();
-  if (rows.length === 0) {
+  const filtered = getFilteredDonations();
+
+  if (filtered.length === 0) {
     tbody.innerHTML = `
       <tr>
         <td colspan="6" class="empty-state">
-          <h3>No donations yet</h3>
+          <h3>No donations found</h3>
           <p>${
             isGuestUser
               ? "No data to display."
-              : "Try adjusting filters or click 'Add Donation' to get started."
+              : "Try clearing filters or add a new donation."
           }</p>
         </td>
-      </tr>
-    `;
+      </tr>`;
+
+    // Clear mobile view if it exists
+    const existingMobileContainer = document.querySelector(".donations-mobile");
+    if (existingMobileContainer) {
+      existingMobileContainer.innerHTML = `
+        <div class="empty-state">
+          <h3>No donations found</h3>
+          <p>${
+            isGuestUser
+              ? "No data to display."
+              : "Try clearing filters or add a new donation."
+          }</p>
+        </div>`;
+    }
     return;
   }
 
-  tbody.innerHTML = rows
-    .map(
-      (donation) => `
-    <tr>
-      <td data-label="Flat">${donation.flatNumber || ""}</td>
-      <td data-label="Donor Name">${donation.donorName}</td>
-      <td class="amount" data-label="Amount">${formatAmount(
-        donation.amount
-      )}</td>
-      <td data-label="Purpose">
-        <span class="chip chip--purpose">${donation.purpose}</span>
-      </td>
-      <td data-label="Date">${formatDate(donation.date)}${
+  // Generate mobile cards
+  const mobileContainer = document.createElement("div");
+  mobileContainer.className = "data-table-mobile donations-mobile";
+
+  filtered.forEach((donation, index) => {
+    const card = document.createElement("div");
+    card.className = "data-card";
+
+    // Card header with Flat and Amount
+    const header = document.createElement("div");
+    header.className = "data-card__header";
+    header.innerHTML = `
+      <h3 class="data-card__title">${donation.flatNumber || "N/A"}</h3>
+      <span class="amount">${formatAmount(donation.amount)}</span>
+    `;
+
+    // Card content
+    const content = document.createElement("div");
+    content.className = "data-card__content";
+    content.innerHTML = `
+      <div class="data-row">
+        <span class="data-label">Donor Name:</span>
+        <span class="data-value">${donation.donorName || "N/A"}</span>
+      </div>
+      <div class="data-row">
+        <span class="data-label">Purpose:</span>
+        <span class="data-value">${donation.purpose || "N/A"}</span>
+      </div>
+      <div class="data-row">
+        <span class="data-label">Date:</span>
+        <span class="data-value">${formatDate(donation.date)}</span>
+      </div>
+      ${
         donation.navaratriDay
-          ? ` <span class="chip chip--success">Day ${donation.navaratriDay}</span>`
+          ? `
+      <div class="data-row">
+        <span class="data-label">Navaratri Day:</span>
+        <span class="data-value">${donation.navaratriDay}</span>
+      </div>`
           : ""
-      }</td>
-      <td data-label="Actions">
+      }
+    `;
+
+    // Actions (for non-guest users)
+    if (!isGuestUser) {
+      const actions = document.createElement("div");
+      actions.className = "data-actions";
+      actions.innerHTML = `
+        <button class="btn btn--outline btn--sm" onclick="editDonation(${donation.id})">Edit</button>
+        <button class="btn btn--outline btn--sm" onclick="deleteDonation(${donation.id})">Delete</button>
+      `;
+      card.appendChild(actions);
+    }
+
+    card.prepend(header, content);
+    mobileContainer.appendChild(card);
+  });
+
+  // Insert or update the mobile container
+  const tableContainer =
+    tbody.closest(".table-responsive") ||
+    tbody.closest(".card__body") ||
+    tbody.closest("section");
+  const existingMobileContainer =
+    tableContainer.querySelector(".donations-mobile");
+
+  if (existingMobileContainer) {
+    existingMobileContainer.replaceWith(mobileContainer);
+  } else {
+    tableContainer.insertBefore(mobileContainer, tableContainer.firstChild);
+  }
+
+  // Regular table (hidden on mobile)
+  tbody.innerHTML = filtered
+    .map(
+      (donation, index) => `
+      <tr>
+        <td>${index + 1}</td>
+        <td>${donation.flatNumber || ""}</td>
+        <td>${donation.donorName || ""}</td>
+        <td class="amount">${formatAmount(donation.amount)}</td>
+        <td>${donation.purpose || ""}</td>
+        <td>${formatDate(donation.date)}</td>
         ${
           !isGuestUser
             ? `
-        <div class="table-actions">
-          <button class="btn btn--outline btn--sm" onclick="editDonation(${donation.id})">Edit</button>
-          <button class="btn btn--outline btn--sm" onclick="deleteDonation(${donation.id})">Delete</button>
-        </div>
+        <td data-label="Actions">
+          <div class="table-actions">
+            <button class="btn btn--outline btn--sm" onclick="editDonation(${donation.id})">Edit</button>
+            <button class="btn btn--outline btn--sm" onclick="deleteDonation(${donation.id})">Delete</button>
+          </div>
+        </td>
         `
             : ""
         }
-      </td>
-    </tr>
-  `
+      </tr>
+    `
     )
     .join("");
 }
@@ -1937,6 +2100,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // Add these variables at the top with other state variables
 let currentSort = { column: "date", direction: "desc" }; // Default sort by date descending
+let currentDonationSort = { column: "date", direction: "desc" }; // Default sort by date descending
 
 // Update the getFilteredContributions function to include sorting
 function getFilteredContributions() {
@@ -1958,7 +2122,7 @@ function getFilteredContributions() {
   // Helper function to extract numeric part from flat number
   const getFlatNumber = (flatStr) => {
     if (!flatStr) return 0;
-    // Extract numbers from string (e.g., 'GH-101' -> 101)
+    // Remove all non-digit characters and convert to number
     const num = flatStr.replace(/\D/g, "");
     return parseInt(num, 10) || 0;
   };
@@ -1994,6 +2158,60 @@ function getFilteredContributions() {
   });
 }
 
+function getFilteredDonations() {
+  const term = uiFilters.donationSearch.trim().toLowerCase();
+  const date = uiFilters.donationDate;
+  const purpose = uiFilters.donationPurpose.trim().toLowerCase();
+
+  // Filter the data first
+  const filtered = donations.filter((d) => {
+    const matchesTerm =
+      !term ||
+      d.donorName.toLowerCase().includes(term) ||
+      String(d.flatNumber).toLowerCase().includes(term) ||
+      d.purpose.toLowerCase().includes(term);
+    const matchesDate = !date || d.date === date;
+    const matchesPurpose = !purpose || d.purpose.toLowerCase() === purpose;
+    return matchesTerm && matchesDate && matchesPurpose;
+  });
+
+  // Helper function to extract numeric part from flat number
+  const getFlatNumber = (flatStr) => {
+    if (!flatStr) return 0;
+    const num = flatStr.replace(/\D/g, "");
+    return parseInt(num, 10) || 0;
+  };
+
+  // Then sort the filtered results
+  return [...filtered].sort((a, b) => {
+    let compareResult = 0;
+
+    switch (currentDonationSort.column) {
+      case "flat":
+        const aFlatNum = getFlatNumber(a.flatNumber);
+        const bFlatNum = getFlatNumber(b.flatNumber);
+        compareResult = aFlatNum - bFlatNum;
+        break;
+      case "date":
+        compareResult = new Date(a.date) - new Date(b.date);
+        break;
+      case "amount":
+        compareResult = a.amount - b.amount;
+        break;
+      case "donor":
+        compareResult = (a.donorName || "").localeCompare(b.donorName || "");
+        break;
+      default:
+        compareResult = 0;
+    }
+
+    // Apply sort direction
+    return currentDonationSort.direction === "asc"
+      ? compareResult
+      : -compareResult;
+  });
+}
+
 // Add this function to handle header clicks
 function handleSort(column) {
   if (currentSort.column === column) {
@@ -2005,6 +2223,19 @@ function handleSort(column) {
     currentSort.direction = "asc";
   }
   renderContributionsTable();
+}
+
+function handleDonationSort(column) {
+  if (currentDonationSort.column === column) {
+    // Toggle direction if clicking the same column
+    currentDonationSort.direction =
+      currentDonationSort.direction === "asc" ? "desc" : "asc";
+  } else {
+    // New column, default to ascending
+    currentDonationSort.column = column;
+    currentDonationSort.direction = "asc";
+  }
+  renderDonationsTable();
 }
 
 // Update the renderContributionsTable function to include sort indicators
@@ -2029,9 +2260,88 @@ function renderContributionsTable() {
           }</p>
         </td>
       </tr>`;
+
+    // Clear mobile view if it exists
+    const existingMobileContainer =
+      document.querySelector(".data-table-mobile");
+    if (existingMobileContainer) {
+      existingMobileContainer.innerHTML = `
+        <div class="empty-state">
+          <h3>No contributions found</h3>
+          <p>${
+            isGuestUser
+              ? "No data to display."
+              : "Try clearing filters or add a new contribution."
+          }</p>
+        </div>`;
+    }
     return;
   }
 
+  // Generate mobile cards
+  const mobileContainer = document.createElement("div");
+  mobileContainer.className = "data-table-mobile";
+
+  filtered.forEach((contribution, index) => {
+    const card = document.createElement("div");
+    card.className = "data-card";
+
+    // Card header with Flat and Amount
+    const header = document.createElement("div");
+    header.className = "data-card__header";
+    header.innerHTML = `
+      <h3 class="data-card__title">${contribution.flatNumber || "N/A"}</h3>
+      <span class="amount">${formatAmount(contribution.amount)}</span>
+    `;
+
+    // Card content
+    const content = document.createElement("div");
+    content.className = "data-card__content";
+    content.innerHTML = `
+      <div class="data-row">
+        <span class="data-label">Resident Name:</span>
+        <span class="data-value">${contribution.residentName || "N/A"}</span>
+      </div>
+      <div class="data-row">
+        <span class="data-label">Date:</span>
+        <span class="data-value">${formatDate(contribution.date)}</span>
+      </div>
+      <div class="data-row">
+        <span class="data-label">Received By:</span>
+        <span class="data-value">${contribution.receivedBy || "N/A"}</span>
+      </div>
+    `;
+
+    // Actions (for non-guest users)
+    if (!isGuestUser) {
+      const actions = document.createElement("div");
+      actions.className = "data-actions";
+      actions.innerHTML = `
+        <button class="btn btn--outline btn--sm" onclick="editContribution(${contribution.id})">Edit</button>
+        <button class="btn btn--outline btn--sm" onclick="deleteContribution(${contribution.id})">Delete</button>
+      `;
+      card.appendChild(actions);
+    }
+
+    card.prepend(header, content);
+    mobileContainer.appendChild(card);
+  });
+
+  // Insert or update the mobile container
+  const tableContainer =
+    tbody.closest(".table-responsive") ||
+    tbody.closest(".card__body") ||
+    tbody.closest("section");
+  const existingMobileContainer =
+    tableContainer.querySelector(".data-table-mobile");
+
+  if (existingMobileContainer) {
+    existingMobileContainer.replaceWith(mobileContainer);
+  } else {
+    tableContainer.insertBefore(mobileContainer, tableContainer.firstChild);
+  }
+
+  // Regular table (hidden on mobile)
   tbody.innerHTML = filtered
     .map(
       (contribution, index) => `
@@ -2049,6 +2359,145 @@ function renderContributionsTable() {
           <div class="table-actions">
             <button class="btn btn--outline btn--sm" onclick="editContribution(${contribution.id})">Edit</button>
             <button class="btn btn--outline btn--sm" onclick="deleteContribution(${contribution.id})">Delete</button>
+          </div>
+        </td>
+        `
+            : ""
+        }
+      </tr>
+    `
+    )
+    .join("");
+}
+
+function renderDonationsTable() {
+  const tbody = document.getElementById("donationsTableBody");
+  if (!tbody) return;
+
+  // Update the table headers with sort indicators
+  updateDonationTableHeaders();
+
+  const filtered = getFilteredDonations();
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="6" class="empty-state">
+          <h3>No donations found</h3>
+          <p>${
+            isGuestUser
+              ? "No data to display."
+              : "Try clearing filters or add a new donation."
+          }</p>
+        </td>
+      </tr>`;
+
+    // Clear mobile view if it exists
+    const existingMobileContainer = document.querySelector(".donations-mobile");
+    if (existingMobileContainer) {
+      existingMobileContainer.innerHTML = `
+        <div class="empty-state">
+          <h3>No donations found</h3>
+          <p>${
+            isGuestUser
+              ? "No data to display."
+              : "Try clearing filters or add a new donation."
+          }</p>
+        </div>`;
+    }
+    return;
+  }
+
+  // Generate mobile cards
+  const mobileContainer = document.createElement("div");
+  mobileContainer.className = "data-table-mobile donations-mobile";
+
+  filtered.forEach((donation, index) => {
+    const card = document.createElement("div");
+    card.className = "data-card";
+
+    // Card header with Flat and Amount
+    const header = document.createElement("div");
+    header.className = "data-card__header";
+    header.innerHTML = `
+      <h3 class="data-card__title">${donation.flatNumber || "N/A"}</h3>
+      <span class="amount">${formatAmount(donation.amount)}</span>
+    `;
+
+    // Card content
+    const content = document.createElement("div");
+    content.className = "data-card__content";
+    content.innerHTML = `
+      <div class="data-row">
+        <span class="data-label">Donor Name:</span>
+        <span class="data-value">${donation.donorName || "N/A"}</span>
+      </div>
+      <div class="data-row">
+        <span class="data-label">Purpose:</span>
+        <span class="data-value">${donation.purpose || "N/A"}</span>
+      </div>
+      <div class="data-row">
+        <span class="data-label">Date:</span>
+        <span class="data-value">${formatDate(donation.date)}</span>
+      </div>
+      ${
+        donation.navaratriDay
+          ? `
+      <div class="data-row">
+        <span class="data-label">Navaratri Day:</span>
+        <span class="data-value">${donation.navaratriDay}</span>
+      </div>`
+          : ""
+      }
+    `;
+
+    // Actions (for non-guest users)
+    if (!isGuestUser) {
+      const actions = document.createElement("div");
+      actions.className = "data-actions";
+      actions.innerHTML = `
+        <button class="btn btn--outline btn--sm" onclick="editDonation(${donation.id})">Edit</button>
+        <button class="btn btn--outline btn--sm" onclick="deleteDonation(${donation.id})">Delete</button>
+      `;
+      card.appendChild(actions);
+    }
+
+    card.prepend(header, content);
+    mobileContainer.appendChild(card);
+  });
+
+  // Insert or update the mobile container
+  const tableContainer =
+    tbody.closest(".table-responsive") ||
+    tbody.closest(".card__body") ||
+    tbody.closest("section");
+  const existingMobileContainer =
+    tableContainer.querySelector(".donations-mobile");
+
+  if (existingMobileContainer) {
+    existingMobileContainer.replaceWith(mobileContainer);
+  } else {
+    tableContainer.insertBefore(mobileContainer, tableContainer.firstChild);
+  }
+
+  // Regular table (hidden on mobile)
+  tbody.innerHTML = filtered
+    .map(
+      (donation, index) => `
+      <tr>
+        <td>${index + 1}</td>
+        <td>${donation.flatNumber || ""}</td>
+        <td>${donation.donorName || ""}</td>
+        <td class="amount">${formatAmount(donation.amount)}</td>
+        <td>${donation.purpose || ""}</td>
+        <td>${formatDate(donation.date)}</td>
+        ${
+          !isGuestUser
+            ? `
+        <td data-label="Actions">
+          <div class="table-actions">
+            <button class="btn btn--outline btn--sm" onclick="editDonation(${donation.id})">Edit</button>
+            <button class="btn btn--outline btn--sm" onclick="deleteDonation(${donation.id})">Delete</button>
           </div>
         </td>
         `
@@ -2084,7 +2533,31 @@ function updateTableHeaders() {
   }
 }
 
-// Add this to your initializeApp function to set up event listeners
+function updateDonationTableHeaders() {
+  const headers = {
+    flat: document.querySelector("#donationsTable th:nth-child(2)"),
+    donor: document.querySelector("#donationsTable th:nth-child(3)"),
+    amount: document.querySelector("#donationsTable th:nth-child(4)"),
+    purpose: document.querySelector("#donationsTable th:nth-child(5)"),
+    date: document.querySelector("#donationsTable th:nth-child(6)"),
+  };
+
+  // Reset all headers
+  Object.values(headers).forEach((header) => {
+    if (header) {
+      header.classList.remove("sort-asc", "sort-desc");
+      header.style.cursor = "pointer";
+    }
+  });
+
+  // Update the current sort column
+  const currentHeader = headers[currentDonationSort.column];
+  if (currentHeader) {
+    currentHeader.classList.add(`sort-${currentDonationSort.direction}`);
+  }
+}
+
+// Update the initializeApp function to add click handlers for table headers
 document.addEventListener("DOMContentLoaded", () => {
   // ... existing code ...
 
@@ -2113,5 +2586,30 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // ... rest of your initialization code ...
+  // Add click handlers to donation table headers for sorting
+  const donationTable = document.querySelector("#donationsTable thead");
+  if (donationTable) {
+    donationTable.addEventListener("click", (e) => {
+      const th = e.target.closest("th");
+      if (!th) return;
+
+      const index = Array.from(th.parentNode.children).indexOf(th);
+      const columns = [
+        "#",
+        "flat",
+        "donor",
+        "amount",
+        "purpose",
+        "date",
+        "actions",
+      ];
+      const column = columns[index];
+
+      if (["flat", "date", "amount", "donor", "purpose"].includes(column)) {
+        handleDonationSort(column);
+      }
+    });
+  }
+
+  // ... rest of the initialization code ...
 });
