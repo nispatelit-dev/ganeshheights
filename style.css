@@ -172,6 +172,51 @@ body {
 .table-actions { display: flex; gap: 6px; }
 .amount { font-weight: 600; }
 
+/* Sortable Table Headers */
+.data-table th {
+  position: relative;
+  cursor: pointer;
+  user-select: none;
+  padding-right: 24px;
+}
+
+.data-table th:after {
+  content: '';
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  opacity: 0.5;
+}
+
+.data-table th:not(.sort-asc):not(.sort-desc):after {
+  border-top: 5px solid currentColor;
+  margin-top: 2px;
+}
+
+.data-table th.sort-asc:after {
+  border-bottom: 5px solid currentColor;
+  margin-top: -2px;
+}
+
+.data-table th.sort-desc:after {
+  border-top: 5px solid currentColor;
+  margin-top: 2px;
+}
+
+.data-table th.sort-asc,
+.data-table th.sort-desc {
+  color: var(--primary-color);
+}
+
+.data-table th:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
 /* Utilities */
 .hidden { display: none !important; }
 .text-center { text-align: center; }

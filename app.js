@@ -329,7 +329,9 @@ function getFilteredContributions() {
   const term = uiFilters.contribSearch.trim().toLowerCase();
   const date = uiFilters.contribDate;
   const flat = uiFilters.contribFlat;
-  return fundContributions.filter((c) => {
+
+  // Filter the data first
+  const filtered = fundContributions.filter((c) => {
     const matchesTerm =
       !term ||
       c.residentName.toLowerCase().includes(term) ||
@@ -337,6 +339,44 @@ function getFilteredContributions() {
     const matchesDate = !date || c.date === date;
     const matchesFlat = !flat || c.flatNumber === flat;
     return matchesTerm && matchesDate && matchesFlat;
+  });
+
+  // Helper function to extract numeric part from flat number
+  const getFlatNumber = (flatStr) => {
+    if (!flatStr) return 0;
+    // Extract numbers from string (e.g., 'GH-101' -> 101)
+    const num = flatStr.replace(/\D/g, "");
+    return parseInt(num, 10) || 0;
+  };
+
+  // Then sort the filtered results
+  return [...filtered].sort((a, b) => {
+    let compareResult = 0;
+
+    switch (currentSort.column) {
+      case "flat":
+        // Sort by numeric part of flat number
+        const aNum = getFlatNumber(a.flatNumber);
+        const bNum = getFlatNumber(b.flatNumber);
+        compareResult = aNum - bNum;
+        break;
+      case "date":
+        compareResult = new Date(a.date) - new Date(b.date);
+        break;
+      case "amount":
+        compareResult = a.amount - b.amount;
+        break;
+      case "name":
+        compareResult = (a.residentName || "").localeCompare(
+          b.residentName || ""
+        );
+        break;
+      default:
+        compareResult = 0;
+    }
+
+    // Apply sort direction
+    return currentSort.direction === "asc" ? compareResult : -compareResult;
   });
 }
 
@@ -1893,4 +1933,185 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Initial render
   renderAaratiSchedule();
+});
+
+// Add these variables at the top with other state variables
+let currentSort = { column: "date", direction: "desc" }; // Default sort by date descending
+
+// Update the getFilteredContributions function to include sorting
+function getFilteredContributions() {
+  const term = uiFilters.contribSearch.trim().toLowerCase();
+  const date = uiFilters.contribDate;
+  const flat = uiFilters.contribFlat;
+
+  // Filter the data first
+  const filtered = fundContributions.filter((c) => {
+    const matchesTerm =
+      !term ||
+      c.residentName.toLowerCase().includes(term) ||
+      String(c.flatNumber).toLowerCase().includes(term);
+    const matchesDate = !date || c.date === date;
+    const matchesFlat = !flat || c.flatNumber === flat;
+    return matchesTerm && matchesDate && matchesFlat;
+  });
+
+  // Helper function to extract numeric part from flat number
+  const getFlatNumber = (flatStr) => {
+    if (!flatStr) return 0;
+    // Extract numbers from string (e.g., 'GH-101' -> 101)
+    const num = flatStr.replace(/\D/g, "");
+    return parseInt(num, 10) || 0;
+  };
+
+  // Then sort the filtered results
+  return [...filtered].sort((a, b) => {
+    let compareResult = 0;
+
+    switch (currentSort.column) {
+      case "flat":
+        // Sort by numeric part of flat number
+        const aNum = getFlatNumber(a.flatNumber);
+        const bNum = getFlatNumber(b.flatNumber);
+        compareResult = aNum - bNum;
+        break;
+      case "date":
+        compareResult = new Date(a.date) - new Date(b.date);
+        break;
+      case "amount":
+        compareResult = a.amount - b.amount;
+        break;
+      case "name":
+        compareResult = (a.residentName || "").localeCompare(
+          b.residentName || ""
+        );
+        break;
+      default:
+        compareResult = 0;
+    }
+
+    // Apply sort direction
+    return currentSort.direction === "asc" ? compareResult : -compareResult;
+  });
+}
+
+// Add this function to handle header clicks
+function handleSort(column) {
+  if (currentSort.column === column) {
+    // Toggle direction if clicking the same column
+    currentSort.direction = currentSort.direction === "asc" ? "desc" : "asc";
+  } else {
+    // New column, default to ascending
+    currentSort.column = column;
+    currentSort.direction = "asc";
+  }
+  renderContributionsTable();
+}
+
+// Update the renderContributionsTable function to include sort indicators
+function renderContributionsTable() {
+  const tbody = document.getElementById("contributionsTableBody");
+  if (!tbody) return;
+
+  // Update the table headers with sort indicators
+  updateTableHeaders();
+
+  const filtered = getFilteredContributions();
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="7" class="empty-state">
+          <h3>No contributions found</h3>
+          <p>${
+            isGuestUser
+              ? "No data to display."
+              : "Try clearing filters or add a new contribution."
+          }</p>
+        </td>
+      </tr>`;
+    return;
+  }
+
+  tbody.innerHTML = filtered
+    .map(
+      (contribution, index) => `
+      <tr>
+        <td>${index + 1}</td>
+        <td>${contribution.flatNumber || ""}</td>
+        <td>${contribution.residentName}</td>
+        <td class="amount">${formatAmount(contribution.amount)}</td>
+        <td>${formatDate(contribution.date)}</td>
+        <td>${contribution.receivedBy || ""}</td>
+        ${
+          !isGuestUser
+            ? `
+        <td data-label="Actions">
+          <div class="table-actions">
+            <button class="btn btn--outline btn--sm" onclick="editContribution(${contribution.id})">Edit</button>
+            <button class="btn btn--outline btn--sm" onclick="deleteContribution(${contribution.id})">Delete</button>
+          </div>
+        </td>
+        `
+            : ""
+        }
+      </tr>
+    `
+    )
+    .join("");
+}
+
+// Add this helper function to update table headers with sort indicators
+function updateTableHeaders() {
+  const headers = {
+    flat: document.querySelector("th:nth-child(2)"),
+    name: document.querySelector("th:nth-child(3)"),
+    amount: document.querySelector("th:nth-child(4)"),
+    date: document.querySelector("th:nth-child(5)"),
+  };
+
+  // Reset all headers
+  Object.values(headers).forEach((header) => {
+    if (header) {
+      header.classList.remove("sort-asc", "sort-desc");
+      header.style.cursor = "pointer";
+    }
+  });
+
+  // Update the current sort column
+  const currentHeader = headers[currentSort.column];
+  if (currentHeader) {
+    currentHeader.classList.add(`sort-${currentSort.direction}`);
+  }
+}
+
+// Add this to your initializeApp function to set up event listeners
+document.addEventListener("DOMContentLoaded", () => {
+  // ... existing code ...
+
+  // Add click handlers to table headers for sorting
+  const table = document.querySelector(".data-table thead");
+  if (table) {
+    table.addEventListener("click", (e) => {
+      const th = e.target.closest("th");
+      if (!th) return;
+
+      const index = Array.from(th.parentNode.children).indexOf(th);
+      const columns = [
+        "#",
+        "flat",
+        "name",
+        "amount",
+        "date",
+        "receivedBy",
+        "actions",
+      ];
+      const column = columns[index];
+
+      if (["flat", "date", "amount", "name"].includes(column)) {
+        handleSort(column);
+      }
+    });
+  }
+
+  // ... rest of your initialization code ...
 });
