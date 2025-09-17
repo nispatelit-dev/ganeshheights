@@ -834,7 +834,7 @@ function renderContributionsTable() {
   if (filtered.length === 0) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="6" class="empty-state">
+        <td colspan="7" class="empty-state">
           <h3>No contributions found</h3>
           <p>${
             isGuestUser
@@ -848,8 +848,9 @@ function renderContributionsTable() {
 
   tbody.innerHTML = filtered
     .map(
-      (contribution) => `
+      (contribution, index) => `
       <tr>
+        <td>${index + 1}</td>
         <td>${contribution.flatNumber || ""}</td>
         <td>${contribution.residentName}</td>
         <td class="amount">${formatAmount(contribution.amount)}</td>

@@ -78,10 +78,10 @@
             <div class="container">
                 <div class="nav-tabs segmented">
                     <button class="nav-tab active" data-section="dashboard">Dashboard</button>
-                    <button class="nav-tab" data-section="contributions">Fund Contributions</button>
+                    <!-- <button class="nav-tab" data-section="contributions">Fund Contributions</button>
                     <button class="nav-tab" data-section="donations">Donations</button>
                     <button class="nav-tab" data-section="aaratischedule">Aarati Schedule</button>
-                    <button class="nav-tab" data-section="export">Export</button>
+                    <button class="nav-tab" data-section="export">Export</button> -->
                 </div>
             </div>
         </nav>
@@ -100,7 +100,7 @@
                 
                 <div class="summary-cards">
                     <!-- Total Fund Contributions Card -->
-                    <div class="summary-card">
+                    <div class="summary-card" id="contributionsCard" style="cursor: pointer;" onclick="switchSection('contributions')">
                         <div class="card__body">
                             <h3>Total Fund Contributions</h3>
                             <div class="summary-amount" id="totalContributions">₹0</div>
@@ -109,7 +109,7 @@
                     </div>
                     
                     <!-- Total Donations Card -->
-                    <div class="summary-card">
+                    <div class="summary-card" id="donationsCard" style="cursor: pointer;" onclick="switchSection('donations')">
                         <div class="card__body">
                             <h3>Total Donations</h3>
                             <div class="summary-amount" id="totalDonations">₹0</div>
@@ -175,6 +175,7 @@
                                 <table class="data-table">
                                     <thead>
                                         <tr>
+                                            <th>#</th>
                                             <th>Flat</th>
                                             <th>Resident Name</th>
                                             <th>Amount</th>
@@ -271,6 +272,7 @@
                                 <table class="data-table">
                                     <thead>
                                         <tr>
+                                            <th>#</th>
                                             <th>Flat</th>
                                             <th>Donor Name</th>
                                             <th>Amount</th>
