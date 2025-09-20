@@ -2099,8 +2099,8 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // Add these variables at the top with other state variables
-let currentSort = { column: "date", direction: "desc" }; // Default sort by date descending
-let currentDonationSort = { column: "date", direction: "desc" }; // Default sort by date descending
+let currentSort = { column: "flat", direction: "asc" }; // Default sort by flat ascending
+let currentDonationSort = { column: "flat", direction: "asc" }; // Default sort by flat ascending
 
 // Update the getFilteredContributions function to include sorting
 function getFilteredContributions() {
